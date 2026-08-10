@@ -531,3 +531,186 @@ button {
     transition-duration: 0.01ms !important;
   }
 }
+/* =========================================
+   MOBILE COMPACT MUSIC PLAYER — FIX
+========================================= */
+
+.music-area {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+
+  padding:
+    0 16px
+    max(12px, env(safe-area-inset-bottom));
+
+  z-index: 20;
+}
+
+.quote {
+  margin-bottom: 8px;
+  font-size: 11px;
+}
+
+/* Compact player */
+.player {
+  width: 100%;
+  max-width: 520px;
+
+  margin: 0 auto;
+
+  padding: 8px 10px;
+
+  min-height: 68px;
+
+  border-radius: 20px;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto 3px;
+
+  column-gap: 8px;
+  row-gap: 6px;
+
+  background: rgba(20, 20, 20, 0.55);
+
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+}
+
+/* Song info */
+.song-info {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+}
+
+.cover {
+  width: 48px;
+  height: 48px;
+
+  flex: 0 0 48px;
+
+  border-radius: 10px;
+
+  font-size: 18px;
+}
+
+.song-details h2 {
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.song-details p {
+  margin-top: 3px;
+  font-size: 10px;
+}
+
+/* Controls now stay in ONE ROW */
+.player-controls {
+  margin: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 2px;
+}
+
+.player-controls button {
+  width: 28px;
+  height: 36px;
+
+  font-size: 13px;
+}
+
+.player-controls #shuffleButton {
+  display: none;
+}
+
+.player-controls #playlistButton {
+  display: none;
+}
+
+.play-button {
+  width: 38px !important;
+  height: 38px !important;
+
+  margin: 0 3px;
+
+  font-size: 14px !important;
+}
+
+/* Progress at bottom of player */
+.progress-container {
+  grid-column: 1 / -1;
+  grid-row: 2;
+
+  width: 100%;
+
+  margin: 0;
+
+  gap: 6px;
+}
+
+.progress-container span {
+  display: none;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 2px;
+}
+
+/* Small phones */
+@media (max-width: 380px) {
+
+  .music-area {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .player {
+    padding: 7px 8px;
+    min-height: 62px;
+  }
+
+  .cover {
+    width: 43px;
+    height: 43px;
+    flex-basis: 43px;
+  }
+
+  .player-controls {
+    gap: 0;
+  }
+
+  .player-controls button {
+    width: 25px;
+  }
+
+  .play-button {
+    width: 35px !important;
+    height: 35px !important;
+  }
+}
+
+/* Prevent player from getting cut off */
+@media (max-height: 700px) {
+
+  .music-area {
+    padding-bottom: 8px;
+  }
+
+  .quote {
+    display: none;
+  }
+
+  .player {
+    min-height: 60px;
+  }
+}
