@@ -1,4 +1,5 @@
 const audio = document.getElementById("audio");
+const hornAudio = document.getElementById("hornAudio");
 
 const playButton = document.getElementById("playButton");
 const previousButton = document.getElementById("previousButton");
@@ -42,6 +43,8 @@ const shayariList = [
 let shayariIndex = 0;
 
 function changeShayari() {
+  if (!quote) return;
+
   quote.style.opacity = "0";
 
   setTimeout(() => {
@@ -95,13 +98,23 @@ function loadSong(index) {
   const song = playlist[currentSong];
 
   songTitle.textContent = song.title;
-  artistName.textContent = "Song coming soon...";
+  artistName.textContent = song.audio
+    ? song.artist
+    : "Song coming soon...";
 
-  cover.innerHTML = "<span>♪</span>";
+  if (song.cover) {
+    cover.innerHTML = `
+      <img
+        src="${escapeHTML(song.cover)}"
+        alt="${escapeHTML(song.title)}"
+      />
+    `;
+  } else {
+    cover.innerHTML = "<span>♪</span>";
+  }
 
   if (song.audio) {
     audio.src = song.audio;
-    artistName.textContent = song.artist;
   } else {
     audio.removeAttribute("src");
     audio.load();
@@ -116,28 +129,34 @@ function loadSong(index) {
 
 
 /* ================================
-   PLAY
+   MUSIC PLAY / PAUSE
 ================================ */
 
 async function togglePlay() {
   const song = playlist[currentSong];
 
-  if (!song.audio) {
+  if (!song || !song.audio) {
     artistName.textContent = "Song coming soon...";
     return;
   }
 
-  if (audio.paused) {
-    await audio.play();
-  } else {
-    audio.pause();
-  }
+  try {
+    if (audio.paused) {
+      await audio.play();
+    } else {
+      audio.pause();
+    }
 
-  updatePlayButton();
+    updatePlayButton();
+
+  } catch (error) {
+    console.error("Playback error:", error);
+  }
 }
 
 function updatePlayButton() {
-  playButton.textContent = audio.paused ? "▶" : "Ⅱ";
+  playButton.textContent =
+    audio.paused ? "▶" : "Ⅱ";
 }
 
 
@@ -150,14 +169,31 @@ function nextSong() {
     (currentSong + 1) % playlist.length;
 
   loadSong(currentSong);
+
+  if (playlist[currentSong].audio) {
+    audio.play()
+      .then(updatePlayButton)
+      .catch(() => {});
+  }
 }
 
 function previousSong() {
+  if (audio.currentTime > 3) {
+    audio.currentTime = 0;
+    return;
+  }
+
   currentSong =
     (currentSong - 1 + playlist.length) %
     playlist.length;
 
   loadSong(currentSong);
+
+  if (playlist[currentSong].audio) {
+    audio.play()
+      .then(updatePlayButton)
+      .catch(() => {});
+  }
 }
 
 
@@ -168,10 +204,11 @@ function previousSong() {
 audio.addEventListener("timeupdate", () => {
   if (!audio.duration) return;
 
-  const percent =
+  const percentage =
     (audio.currentTime / audio.duration) * 100;
 
-  progress.style.width = `${percent}%`;
+  progress.style.width =
+    `${percentage}%`;
 
   currentTimeElement.textContent =
     formatTime(audio.currentTime);
@@ -199,98 +236,21 @@ progressBar.addEventListener("click", (event) => {
 
 
 /* ================================
-   🔊 REAL HORN EFFECT
-   No MP3 required
+   🔊 REAL MP3 HORN
 ================================ */
 
-let hornContext = null;
-
-function playHorn() {
+hornButton.addEventListener("click", async () => {
 
   try {
 
-    if (!hornContext) {
-      hornContext =
-        new (
-          window.AudioContext ||
-          window.webkitAudioContext
-        )();
-    }
-
-    if (hornContext.state === "suspended") {
-      hornContext.resume();
-    }
-
-    const now =
-      hornContext.currentTime;
-
-    const oscillator =
-      hornContext.createOscillator();
-
-    const oscillator2 =
-      hornContext.createOscillator();
-
-    const gain =
-      hornContext.createGain();
-
-    const filter =
-      hornContext.createBiquadFilter();
-
     /*
-      Two frequencies together
-      create a bus/truck horn-like tone.
+      Actual file:
+      assets/horn.mp3
     */
 
-    oscillator.type = "sawtooth";
-    oscillator2.type = "square";
+    hornAudio.currentTime = 0;
 
-    oscillator.frequency.setValueAtTime(
-      185,
-      now
-    );
-
-    oscillator2.frequency.setValueAtTime(
-      370,
-      now
-    );
-
-    filter.type = "lowpass";
-    filter.frequency.setValueAtTime(
-      900,
-      now
-    );
-
-    gain.gain.setValueAtTime(
-      0.0001,
-      now
-    );
-
-    gain.gain.exponentialRampToValueAtTime(
-      0.35,
-      now + 0.04
-    );
-
-    gain.gain.setValueAtTime(
-      0.35,
-      now + 0.28
-    );
-
-    gain.gain.exponentialRampToValueAtTime(
-      0.0001,
-      now + 0.65
-    );
-
-    oscillator.connect(filter);
-    oscillator2.connect(filter);
-
-    filter.connect(gain);
-    gain.connect(hornContext.destination);
-
-    oscillator.start(now);
-    oscillator2.start(now);
-
-    oscillator.stop(now + 0.7);
-    oscillator2.stop(now + 0.7);
+    await hornAudio.play();
 
     hornButton.classList.add("horn-active");
 
@@ -299,19 +259,15 @@ function playHorn() {
     }, 650);
 
   } catch (error) {
-    console.error("Horn error:", error);
+
+    console.error(
+      "Horn playback error:",
+      error
+    );
+
   }
-}
 
-
-/* ================================
-   HORN BUTTON
-================================ */
-
-hornButton.addEventListener(
-  "click",
-  playHorn
-);
+});
 
 
 /* ================================
@@ -335,24 +291,58 @@ previousButton.addEventListener(
 
 
 /* ================================
-   TIME
+   KEYBOARD
+================================ */
+
+document.addEventListener("keydown", (event) => {
+
+  if (event.code === "Space") {
+    event.preventDefault();
+    togglePlay();
+  }
+
+  if (event.code === "ArrowRight") {
+    nextSong();
+  }
+
+  if (event.code === "ArrowLeft") {
+    previousSong();
+  }
+
+});
+
+
+/* ================================
+   HELPERS
 ================================ */
 
 function formatTime(seconds) {
 
-  if (!seconds || isNaN(seconds)) {
+  if (!seconds || Number.isNaN(seconds)) {
     return "0:00";
   }
 
   const minutes =
     Math.floor(seconds / 60);
 
-  const remaining =
+  const remainingSeconds =
     Math.floor(seconds % 60)
       .toString()
       .padStart(2, "0");
 
-  return `${minutes}:${remaining}`;
+  return `${minutes}:${remainingSeconds}`;
+}
+
+
+function escapeHTML(value) {
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
 }
 
 
