@@ -1,0 +1,329 @@
+:root{
+  --sky-night:#131b4a;
+  --sky-day:#2f5aa8;
+  --dusk:#d94a28;
+  --mango:#f5a623;
+  --cream:#f7ecd9;
+  --maroon:#5e1220;
+  --leaf:#2e7d55;
+  --font-display:'Baloo 2', system-ui, sans-serif;
+  --font-body:'Poppins', system-ui, sans-serif;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+
+html,body{
+  height:100%;
+  background:var(--sky-night);
+  color:var(--cream);
+  font-family:var(--font-body);
+  overflow-x:hidden;
+}
+
+button{font-family:inherit; border:none; background:none; cursor:pointer;}
+
+/* ---------- Jhalar / danglers ---------- */
+.jhalar{
+  position:fixed;
+  top:0; left:0; right:0;
+  height:26px;
+  display:flex;
+  justify-content:space-evenly;
+  z-index:40;
+  pointer-events:none;
+}
+.jhalar-string{
+  width:6px;
+  height:22px;
+  background:linear-gradient(180deg, var(--mango), var(--dusk));
+  border-radius:0 0 6px 6px;
+  transform-origin:top center;
+  animation:sway 3.2s ease-in-out infinite;
+}
+.jhalar-string:nth-child(2n){animation-delay:.4s; background:linear-gradient(180deg, var(--leaf), var(--sky-day));}
+.jhalar-string:nth-child(3n){animation-delay:.9s;}
+.jhalar-string:nth-child(4n){animation-delay:1.3s; background:linear-gradient(180deg, var(--cream), var(--mango));}
+@keyframes sway{
+  0%,100%{transform:rotate(-6deg);}
+  50%{transform:rotate(6deg);}
+}
+@media (prefers-reduced-motion: reduce){
+  .jhalar-string{animation:none;}
+}
+
+/* ---------- Highway main screen ---------- */
+.highway{
+  position:relative;
+  min-height:100dvh;
+  padding:26px 20px 130px;
+  background:
+    radial-gradient(120% 60% at 50% -10%, var(--sky-day) 0%, var(--sky-night) 55%),
+    linear-gradient(180deg, transparent 55%, var(--dusk) 100%);
+  display:flex;
+  flex-direction:column;
+}
+
+.status-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:13px;
+  opacity:.9;
+}
+.clock{font-weight:600; letter-spacing:.03em;}
+.live-badge{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:rgba(0,0,0,.25);
+  padding:5px 10px;
+  border-radius:999px;
+}
+.live-badge .dot{
+  width:7px; height:7px; border-radius:50%;
+  background:#3ddc74;
+  box-shadow:0 0 6px #3ddc74;
+}
+.playlist-toggle{
+  font-size:18px;
+  color:var(--cream);
+  background:rgba(0,0,0,.25);
+  width:34px; height:34px;
+  border-radius:50%;
+}
+
+.title-block{
+  text-align:center;
+  margin-top:12vh;
+}
+.eyebrow{
+  font-size:12px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--mango);
+  font-weight:600;
+  margin-bottom:10px;
+}
+.song-title{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:clamp(2.4rem, 11vw, 4rem);
+  line-height:1.1;
+  color:var(--cream);
+  text-shadow:0 6px 18px rgba(0,0,0,.35);
+}
+.song-sub{
+  margin-top:10px;
+  font-size:15px;
+  opacity:.85;
+}
+
+/* ---------- Horn button ---------- */
+.horn-btn{
+  margin:34px auto 0;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(0,0,0,.28);
+  border:1px solid rgba(247,236,217,.25);
+  padding:10px 18px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:600;
+  color:var(--cream);
+}
+.horn-btn:active{transform:scale(.94);}
+.horn-icon{font-size:16px;}
+.horn-toast{
+  position:fixed;
+  top:70px;
+  left:50%;
+  transform:translateX(-50%) translateY(-10px);
+  background:var(--maroon);
+  border:1px solid var(--mango);
+  color:var(--cream);
+  padding:8px 16px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:600;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s ease, transform .25s ease;
+  z-index:60;
+}
+.horn-toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+/* ---------- Truck scene ---------- */
+.truck-scene{
+  margin-top:auto;
+  position:relative;
+  padding-top:20px;
+}
+.road-line{
+  position:absolute;
+  bottom:-6px;
+  left:0; right:0;
+  height:4px;
+  background-image:repeating-linear-gradient(90deg, var(--cream) 0 24px, transparent 24px 48px);
+  opacity:.35;
+  animation:roll 1.1s linear infinite;
+}
+@keyframes roll{
+  from{background-position-x:0;}
+  to{background-position-x:-48px;}
+}
+.truck-svg{
+  width:min(340px, 82vw);
+  display:block;
+  margin:0 auto;
+  animation:bob 2.4s ease-in-out infinite;
+  filter:drop-shadow(0 14px 12px rgba(0,0,0,.4));
+}
+@keyframes bob{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-4px);}
+}
+.truck-tarp{fill:var(--sky-day); opacity:.9;}
+.truck-body-panel{fill:var(--maroon);}
+.truck-body-slats{fill:none; stroke:var(--mango); stroke-width:2; stroke-dasharray:4 6; opacity:.8;}
+.truck-cabin{fill:var(--mango);}
+.truck-roof{fill:var(--dusk);}
+.truck-window{fill:var(--sky-night); stroke:var(--cream); stroke-width:1.5;}
+.wheel{fill:#1a1a1a;}
+.hub{fill:var(--cream);}
+.truck-svg.honking{animation:honk .35s ease;}
+@keyframes honk{
+  0%,100%{transform:translateY(0) scale(1);}
+  40%{transform:translateY(-6px) scale(1.03);}
+}
+@media (prefers-reduced-motion: reduce){
+  .truck-svg, .road-line{animation:none;}
+}
+
+/* ---------- Playlist bottom sheet ---------- */
+.sheet-backdrop{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.5);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s ease;
+  z-index:45;
+}
+.sheet-backdrop.open{opacity:1; pointer-events:auto;}
+
+.playlist-sheet{
+  position:fixed;
+  left:0; right:0; bottom:0;
+  max-height:74vh;
+  background:var(--maroon);
+  border-top:3px solid var(--mango);
+  border-radius:22px 22px 0 0;
+  padding:10px 18px 20px;
+  transform:translateY(100%);
+  transition:transform .3s cubic-bezier(.2,.8,.2,1);
+  z-index:50;
+  overflow-y:auto;
+}
+.playlist-sheet.open{transform:translateY(0);}
+.sheet-handle{
+  width:44px; height:5px;
+  background:rgba(247,236,217,.4);
+  border-radius:999px;
+  margin:6px auto 14px;
+}
+.sheet-title{
+  font-family:var(--font-display);
+  font-size:20px;
+  margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.sheet-count{font-size:13px; font-weight:400; opacity:.7; font-family:var(--font-body);}
+
+.song-list{list-style:none; display:flex; flex-direction:column; gap:8px;}
+.song-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px;
+  border-radius:14px;
+  background:rgba(0,0,0,.18);
+  border:1px solid transparent;
+}
+.song-item.active{
+  border-color:var(--mango);
+  background:rgba(245,166,35,.15);
+}
+.song-item-emoji{
+  width:42px; height:42px;
+  border-radius:10px;
+  background:var(--sky-day);
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px;
+  flex-shrink:0;
+}
+.song-item-text{flex:1; min-width:0;}
+.song-item-title{font-weight:600; font-size:14.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.song-item-artist{font-size:12.5px; opacity:.75; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.song-item-play{font-size:14px; opacity:.7; flex-shrink:0;}
+
+/* ---------- Bottom dock ---------- */
+.dock{
+  position:fixed;
+  left:0; right:0; bottom:0;
+  background:rgba(14,17,45,.92);
+  backdrop-filter:blur(10px);
+  border-top:1px solid rgba(247,236,217,.15);
+  padding:0 14px calc(10px + env(safe-area-inset-bottom));
+  z-index:35;
+}
+.dock-progress{
+  height:3px;
+  background:rgba(247,236,217,.15);
+  border-radius:999px;
+  margin:0 -14px;
+}
+.dock-progress-fill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg, var(--mango), var(--dusk));
+  transition:width .2s linear;
+}
+.dock-main{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding-top:10px;
+}
+.dock-art{
+  width:42px; height:42px;
+  border-radius:10px;
+  background:linear-gradient(160deg, var(--mango), var(--dusk));
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px;
+  flex-shrink:0;
+}
+.dock-meta{flex:1; min-width:0;}
+.dock-title{font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.dock-artist{font-size:12px; opacity:.7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.dock-controls{display:flex; align-items:center; gap:14px; flex-shrink:0;}
+.dock-controls button{color:var(--cream); font-size:18px;}
+.play-main{
+  width:38px; height:38px;
+  border-radius:50%;
+  background:var(--cream);
+  color:var(--sky-night);
+  display:flex; align-items:center; justify-content:center;
+  font-size:15px;
+}
+.play-main:active{transform:scale(.92);}
+
+@media (min-width:640px){
+  .highway{padding-left:60px; padding-right:60px;}
+  .dock-main, .dock-progress{max-width:640px; margin-left:auto; margin-right:auto;}
+}
