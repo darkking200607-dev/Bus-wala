@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Bus Wala — Admin</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h1 {
+      margin-bottom: 25px;
+    }
+
+    .card {
+      background: #1d1d1d;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin: 8px 0 14px;
+      border: 0;
+      border-radius: 10px;
+      background: #303030;
+      color: white;
+      outline: none;
+    }
+
+    label {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: 0;
+      border-radius: 10px;
+      background: white;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+    }
+
+    .logout {
+      background: #333;
+      color: white;
+      margin-top: 15px;
+    }
+
+    .song {
+      padding: 14px 0;
+      border-bottom: 1px solid #333;
+    }
+
+    .song:last-child {
+      border-bottom: 0;
+    }
+
+    .song-title {
+      font-weight: bold;
+    }
+
+    .song-artist {
+      font-size: 13px;
+      opacity: 0.6;
+      margin-top: 4px;
+    }
+
+    .status {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>🚌 बस वाला — Admin</h1>
+
+
+  <!-- LOGIN -->
+
+  <div id="loginBox" class="card">
+
+    <h2>Admin Login</h2>
+
+    <label>Email</label>
+    <input
+      id="email"
+      type="email"
+      placeholder="Admin email"
+    >
+
+    <label>Password</label>
+    <input
+      id="password"
+      type="password"
+      placeholder="Password"
+    >
+
+    <button id="loginButton">
+      Login
+    </button>
+
+    <div id="loginStatus" class="status"></div>
+
+  </div>
+
+
+  <!-- ADMIN -->
+
+  <div id="adminBox" class="hidden">
+
+    <div class="card">
+
+      <h2>Add New Song</h2>
+
+      <label>Song Title</label>
+
+      <input
+        id="title"
+        type="text"
+        placeholder="Song name"
+      >
+
+
+      <label>Artist</label>
+
+      <input
+        id="artist"
+        type="text"
+        placeholder="Artist name"
+      >
+
+
+      <label>Song MP3</label>
+
+      <input
+        id="audioFile"
+        type="file"
+        accept="audio/mpeg,audio/mp3,audio/*"
+      >
+
+
+      <label>Cover Image — optional</label>
+
+      <input
+        id="coverFile"
+        type="file"
+        accept="image/*"
+      >
+
+
+      <button id="uploadButton">
+        Upload & Publish
+      </button>
+
+
+      <div
+        id="uploadStatus"
+        class="status"
+      ></div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h2>Published Songs</h2>
+
+      <div id="songsList">
+        Loading...
+      </div>
+
+    </div>
+
+
+    <button
+      id="logoutButton"
+      class="logout"
+    >
+      Logout
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const client = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const loginBox =
+  document.getElementById("loginBox");
+
+const adminBox =
+  document.getElementById("adminBox");
+
+const emailInput =
+  document.getElementById("email");
+
+const passwordInput =
+  document.getElementById("password");
+
+const loginButton =
+  document.getElementById("loginButton");
+
+const loginStatus =
+  document.getElementById("loginStatus");
+
+const uploadButton =
+  document.getElementById("uploadButton");
+
+const uploadStatus =
+  document.getElementById("uploadStatus");
+
+const songsList =
+  document.getElementById("songsList");
+
+const logoutButton =
+  document.getElementById("logoutButton");
+
+
+/* =========================
+   CHECK LOGIN
+========================= */
+
+async function checkLogin() {
+
+  const {
+    data: {
+      session
+    }
+  } = await client.auth.getSession();
+
+  if (session) {
+
+    showAdmin();
+
+  } else {
+
+    showLogin();
+
+  }
+
+}
+
+
+/* =========================
+   LOGIN
+========================= */
+
+loginButton.addEventListener(
+  "click",
+  async () => {
+
+    const email =
+      emailInput.value.trim();
+
+    const password =
+      passwordInput.value;
+
+    if (!email || !password) {
+
+      loginStatus.textContent =
+        "Email aur password enter karo.";
+
+      return;
+
+    }
+
+    loginButton.disabled = true;
+
+    loginStatus.textContent =
+      "Logging in...";
+
+
+    const {
+      data,
+      error
+    } =
+      await client.auth.signInWithPassword({
+        email,
+        password
+      });
+
+
+    loginButton.disabled = false;
+
+
+    if (error) {
+
+      loginStatus.textContent =
+        "Login failed: " +
+        error.message;
+
+      return;
+
+    }
+
+
+    loginStatus.textContent =
+      "";
+
+    showAdmin();
+
+  }
+);
+
+
+/* =========================
+   SHOW LOGIN
+========================= */
+
+function showLogin() {
+
+  loginBox.classList.remove(
+    "hidden"
+  );
+
+  adminBox.classList.add(
+    "hidden"
+  );
+
+}
+
+
+/* =========================
+   SHOW ADMIN
+========================= */
+
+function showAdmin() {
+
+  loginBox.classList.add(
+    "hidden"
+  );
+
+  adminBox.classList.remove(
+    "hidden"
+  );
+
+  loadSongs();
+
+}
+
+
+/* =========================
+   UPLOAD SONG
+========================= */
+
+uploadButton.addEventListener(
+  "click",
+  uploadSong
+);
+
+
+async function uploadSong() {
+
+  const title =
+    document
+      .getElementById("title")
+      .value
+      .trim();
+
+  const artist =
+    document
+      .getElementById("artist")
+      .value
+      .trim() ||
+    "Bus Wala";
+
+  const audioFile =
+    document
+      .getElementById("audioFile")
+      .files[0];
+
+  const coverFile =
+    document
+      .getElementById("coverFile")
+      .files[0];
+
+
+  if (!title) {
+
+    uploadStatus.textContent =
+      "Song title daalo.";
+
+    return;
+
+  }
+
+
+  if (!audioFile) {
+
+    uploadStatus.textContent =
+      "MP3 file select karo.";
+
+    return;
+
+  }
+
+
+  uploadButton.disabled = true;
+
+  uploadStatus.textContent =
+    "Uploading song...";
+
+
+  try {
+
+    /* =====================
+       AUDIO UPLOAD
+    ===================== */
+
+    const audioExtension =
+      audioFile.name
+        .split(".")
+        .pop()
+        .toLowerCase();
+
+    const audioPath =
+      Date.now() +
+      "-" +
+      crypto.randomUUID() +
+      "." +
+      audioExtension;
+
+
+    const {
+      error: audioError
+    } =
+      await client.storage
+        .from("songs")
+        .upload(
+          audioPath,
+          audioFile,
+          {
+            contentType:
+              audioFile.type ||
+              "audio/mpeg",
+            upsert: false
+          }
+        );
+
+
+    if (audioError) {
+      throw audioError;
+    }
+
+
+    const {
+      data: audioUrlData
+    } =
+      client.storage
+        .from("songs")
+        .getPublicUrl(
+          audioPath
+        );
+
+
+    const audioUrl =
+      audioUrlData.publicUrl;
+
+
+    /* =====================
+       COVER UPLOAD
+    ===================== */
+
+    let coverUrl = null;
+
+
+    if (coverFile) {
+
+      const coverExtension =
+        coverFile.name
+          .split(".")
+          .pop()
+          .toLowerCase();
+
+      const coverPath =
+        "covers/" +
+        Date.now() +
+        "-" +
+        crypto.randomUUID() +
+        "." +
+        coverExtension;
+
+
+      const {
+        error: coverError
+      } =
+        await client.storage
+          .from("songs")
+          .upload(
+            coverPath,
+            coverFile,
+            {
+              contentType:
+                coverFile.type,
+              upsert: false
+            }
+          );
+
+
+      if (coverError) {
+        throw coverError;
+      }
+
+
+      const {
+        data: coverUrlData
+      } =
+        client.storage
+          .from("songs")
+          .getPublicUrl(
+            coverPath
+          );
+
+
+      coverUrl =
+        coverUrlData.publicUrl;
+
+    }
+
+
+    /* =====================
+       DATABASE ENTRY
+    ===================== */
+
+    const {
+      error: databaseError
+    } =
+      await client
+        .from("songs")
+        .insert({
+
+          title: title,
+
+          artist: artist,
+
+          audio_url: audioUrl,
+
+          cover_url: coverUrl
+
+        });
+
+
+    if (databaseError) {
+      throw databaseError;
+    }
+
+
+    uploadStatus.textContent =
+      "✅ Song published successfully!";
+
+
+    document
+      .getElementById("title")
+      .value = "";
+
+    document
+      .getElementById("artist")
+      .value = "";
+
+    document
+      .getElementById("audioFile")
+      .value = "";
+
+    document
+      .getElementById("coverFile")
+      .value = "";
+
+
+    loadSongs();
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    uploadStatus.textContent =
+      "❌ Upload failed: " +
+      error.message;
+
+  }
+
+
+  uploadButton.disabled = false;
+
+}
+
+
+/* =========================
+   LOAD SONG LIST
+========================= */
+
+async function loadSongs() {
+
+  const {
+    data,
+    error
+  } =
+    await client
+      .from("songs")
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending: false
+        }
+      );
+
+
+  if (error) {
+
+    songsList.textContent =
+      "Songs load nahi ho paaye.";
+
+    return;
+
+  }
+
+
+  if (!data.length) {
+
+    songsList.textContent =
+      "Abhi koi song publish nahi hai.";
+
+    return;
+
+  }
+
+
+  songsList.innerHTML =
+    data.map(song => `
+
+      <div class="song">
+
+        <div class="song-title">
+          ${escapeHtml(song.title)}
+        </div>
+
+        <div class="song-artist">
+          ${escapeHtml(
+            song.artist || "Bus Wala"
+          )}
+        </div>
+
+      </div>
+
+    `).join("");
+
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+logoutButton.addEventListener(
+  "click",
+  async () => {
+
+    await client.auth.signOut();
+
+    showLogin();
+
+  }
+);
+
+
+/* =========================
+   SECURITY HELPER
+========================= */
+
+function escapeHtml(text) {
+
+  const div =
+    document.createElement("div");
+
+  div.textContent =
+    text;
+
+  return div.innerHTML;
+
+}
+
+
+/* =========================
+   START
+========================= */
+
+checkLogin();
+
+</script>
+
+</body>
+</html>
