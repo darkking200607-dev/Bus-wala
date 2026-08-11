@@ -2,12 +2,14 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8" />
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
   />
 
   <title>बस वाला</title>
+
   <meta
     name="description"
     content="बस वाला — music, safar aur yaadein."
@@ -24,93 +26,139 @@
     <div class="background"></div>
     <div class="dark-overlay"></div>
 
-    <!-- Top -->
+
+    <!-- Top Bar -->
     <header class="top-bar">
 
       <div class="online-status">
         <span class="online-dot"></span>
+
         <span id="onlineCount">0</span>
+
         <span>on the highway</span>
       </div>
 
+
+      <!-- Horn -->
       <button
         class="horn-button"
         id="hornButton"
         aria-label="Horn"
+        type="button"
       >
-        ◉
+        🔊
       </button>
 
     </header>
 
+
     <!-- Main Title -->
     <section class="hero">
+
       <h1>बस वाला</h1>
+
     </section>
 
-    <!-- Bottom Music -->
+
+    <!-- Music Area -->
     <section class="music-area">
 
-      <p class="quote" id="quote">
+      <!-- Shayari -->
+      <p
+        class="quote"
+        id="quote"
+      >
         बुरी नज़र वाले तेरा भी भला हो
       </p>
 
+
+      <!-- Music Player -->
       <div class="player">
 
+
+        <!-- Song Information -->
         <div class="song-info">
 
-          <div class="cover" id="cover">
+          <div
+            class="cover"
+            id="cover"
+          >
             <span>♪</span>
           </div>
 
+
           <div class="song-details">
-            <h2 id="songTitle">बस वाला</h2>
-            <p id="artistName">Playlist loading...</p>
+
+            <h2 id="songTitle">
+              बस वाला
+            </h2>
+
+            <p id="artistName">
+              Playlist loading...
+            </p>
+
           </div>
 
         </div>
 
+
+        <!-- Player Controls -->
         <div class="player-controls">
 
           <button
             id="previousButton"
             aria-label="Previous song"
+            type="button"
           >
             ⏮
           </button>
+
 
           <button
             class="play-button"
             id="playButton"
             aria-label="Play"
+            type="button"
           >
             ▶
           </button>
 
+
           <button
             id="nextButton"
             aria-label="Next song"
+            type="button"
           >
             ⏭
           </button>
 
         </div>
 
+
+        <!-- Progress -->
         <div class="progress-container">
 
-          <span id="currentTime">0:00</span>
+          <span id="currentTime">
+            0:00
+          </span>
+
 
           <div
             class="progress-bar"
             id="progressBar"
           >
+
             <div
               class="progress"
               id="progress"
             ></div>
+
           </div>
 
-          <span id="duration">0:00</span>
+
+          <span id="duration">
+            0:00
+          </span>
 
         </div>
 
@@ -120,13 +168,15 @@
 
   </main>
 
-  <!-- Music -->
+
+  <!-- Main Music Audio -->
   <audio
     id="audio"
     preload="metadata"
   ></audio>
 
-  <!-- Horn -->
+
+  <!-- Horn Audio -->
   <audio
     id="hornAudio"
     preload="auto"
@@ -137,6 +187,18 @@
     />
   </audio>
 
+
+  <!-- Supabase -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
+
+
+  <!-- Supabase Configuration -->
+  <script src="config.js"></script>
+
+
+  <!-- Website App -->
   <script src="app.js"></script>
 
 </body>
